@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.IO;
 
-namespace BossyConvertEncodingTools
+namespace FECT
 {
     internal class BossyEncoding
     {

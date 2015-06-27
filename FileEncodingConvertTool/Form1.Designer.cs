@@ -1,4 +1,4 @@
-﻿namespace BossyConvertEncodingTools
+﻿namespace FECT
 {
     partial class Form1
     {
@@ -90,7 +90,7 @@
             this.label1.Size = new System.Drawing.Size(82, 15);
             this.label1.TabIndex = 5;
             this.label1.Text = "文件夹路径";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            //this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // textBox2
             // 

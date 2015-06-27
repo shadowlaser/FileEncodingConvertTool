@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace BossyConvertEncodingTools
+namespace FECT
 {
-    internal static class Program
+    internal static class MainEntry
     {
         /// <summary>
         /// 应用程序的主入口点。

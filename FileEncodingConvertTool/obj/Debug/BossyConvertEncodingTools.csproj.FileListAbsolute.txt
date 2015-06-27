@@ -1,0 +1,3 @@
+D:\Documents\GitHub\CSharpTools\BossyConvertEncodingTools\BossyConvertEncodingTools\bin\Debug\BossyConvertEncodingTools.exe.config
+D:\Documents\GitHub\FileConvertEncodingTools\BossyConvertEncodingTools\bin\Debug\BossyConvertEncodingTools.exe.config
+D:\Documents\GitHub\FileEncodingConvertTools\BossyConvertEncodingTools\bin\Debug\BossyConvertEncodingTools.exe.config
