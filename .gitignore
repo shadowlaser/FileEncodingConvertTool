@@ -45,3 +45,7 @@ Temporary Items
 
 #vs solution files
 .suo
+.v12.suo
+.v11.suo
+bin/
+obj/
