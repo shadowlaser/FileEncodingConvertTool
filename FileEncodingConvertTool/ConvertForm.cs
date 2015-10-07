@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace FECT
 {
-    public partial class Form1 : Form
+    public partial class ConvertForm : Form
     {
-        public Form1()
+        public ConvertForm()
         {
             InitializeComponent();
         }

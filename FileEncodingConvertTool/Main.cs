@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Windows.Forms;
 
 namespace FECT
@@ -11,14 +12,15 @@ namespace FECT
         [STAThread]
         private static void Main(string[] argu)
         {
-            if (argu.Length > 0)
+            //if (argu.Length == 0)
+            //{
+            //    Application.EnableVisualStyles();
+            //    Application.SetCompatibleTextRenderingDefault(false);
+            //    Application.Run(new ConvertForm());
+            //}
+            //else
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
-            }
-            else
-            {
+                EncodeUtils.ConvertFileEncoding("d:/test.txt", null, Encoding.UTF8);
             }
         }
     }

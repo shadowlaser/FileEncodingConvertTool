@@ -1,23 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
+using System.Text;
 
 namespace FECT
 {
-    internal class BossyEncoding
+    internal class EncodeUtils
     {
-        public int ConvertSrcFileEncoding2DestFileEncoding(string path, System.Text.Encoding src, System.Text.Encoding dest, bool bakFlag)
+        private Encoding sE = null;
+        private Encoding dE = null;
+
+        
+        public static bool ConvertFileEncoding(string path, Encoding sEncode, Encoding dEncode)
         {
-            int retVal = 0;
+            bool retVal = true;
             StreamReader sr = null;
             StreamWriter sw = null;
+
+            if (sEncode == null)
+            {
+                sEncode = EncodingType.GetFileEncodeType(path);
+            }
             try
             {
-                if (src == null)
-                {
-                    src = GetFileEncoding(path);
-                }
-                sr = new StreamReader(path, src);
-                sw = new StreamWriter(path + ".Bossy.tmp", true, dest);
+                sr = new StreamReader(path, sEncode);
+                sw = new StreamWriter(path + ".Bossy.tmp", true, dEncode);
                 string oneline = sr.ReadLine();
                 while (oneline != null)
                 {
@@ -25,9 +32,9 @@ namespace FECT
                     oneline = sr.ReadLine();
                 }
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-                retVal = -1;
+                retVal = false;
             }
             finally
             {
@@ -39,109 +46,78 @@ namespace FECT
                 {
                     sw.Close();
                 }
-                try
-                {
-                    if (!bakFlag)
-                    {
-                        File.Delete(path);
-                    }
-                    else
-                    {
-                        File.Move(path, path + ".Bossy.bak");
-                    }
-                    File.Move(path + ".Bossy.tmp", path);
-                }
-                catch (System.Exception)
-                {
-                    retVal = -2;
-                }
             }
+
+            //File.Move(path + ".Bossy.tmp", path);
 
             return retVal;
         }
 
-        private System.Text.Encoding GetFileEncoding(string path)
+        //public int ConvertFolder(string folderpath, ArrayList fileExtension, ArrayList srcEncodinglist, Encoding destEncoding, bool bakFlag)
+        //{
+        //    int retVal = 0;
+
+        //    FileInfo[] filelist = new DirectoryInfo(folderpath).GetFiles();
+        //    bool searchSrcEncoding = true;
+        //    if (srcEncodinglist != null && srcEncodinglist.Count > 0)
+        //    {
+        //        searchSrcEncoding = true;
+        //    }
+        //    else
+        //    {
+        //        searchSrcEncoding = false;
+        //    }
+
+        //    foreach (FileInfo file in filelist)
+        //    {
+        //        if (searchSrcEncoding)
+        //        {
+        //            if (fileExtension.Contains(Path.GetExtension(file.FullName)))
+        //            {
+        //                Encoding srcEncoding = GetEncoding(file.FullName, srcEncodinglist);
+        //                if (srcEncoding != null)
+        //                {
+        //                    ConvertFileEncoding(file.FullName, srcEncoding, destEncoding);
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            ConvertFileEncoding(file.FullName, null, destEncoding);
+        //        }
+        //        if (!bakFlag)
+        //        {
+        //            File.Delete(file.FullName);
+        //        }
+        //        else
+        //        {
+        //            File.Move(file.FullName, file.FullName + ".Bossy.bak");
+        //        }
+        //    }
+
+        //    return retVal;
+        //}
+
+
+        private Encoding GetStrEncodingRetEncoding(string enc)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public int ConvertFolder(string folderpath, ArrayList fileExtension, ArrayList srcEncodinglist, System.Text.Encoding destEncoding,bool bakFlag)
-        {
-            int retVal = 0;
-
-            FileInfo[] filelist = new DirectoryInfo(folderpath).GetFiles();
-            bool searchSrcEncoding = true;
-            if (srcEncodinglist != null && srcEncodinglist.Count > 0)
-            {
-                searchSrcEncoding = true;
-            }
-            else
-            {
-                searchSrcEncoding = false;
-            }
-
-            foreach (FileInfo file in filelist)
-            {
-                if (searchSrcEncoding)
-                {
-                    if (fileExtension.Contains(Path.GetExtension(file.FullName)))
-                    {
-
-                        System.Text.Encoding srcEncoding = GetEncoding(file.FullName,srcEncodinglist);
-                        if (srcEncoding != null)
-                        {
-                            ConvertSrcFileEncoding2DestFileEncoding(file.FullName, srcEncoding, destEncoding, bakFlag);
-                        }
-                    }
-                }
-                else
-                {
-                    ConvertSrcFileEncoding2DestFileEncoding(file.FullName, null, destEncoding, bakFlag);
-                }
-            }
-
-            return retVal;
-        }
-
-        private System.Text.Encoding GetEncoding(string path, ArrayList srcEncodinglist)
-        {
-            System.Text.Encoding fileEncoding = null;
-            fileEncoding = GetFileEncoding(path);
-            bool pass = false;
-            foreach (string enc in srcEncodinglist)
-            {
-                if (fileEncoding== GetStrEncodingRetEncoding(enc))
-                {
-                    pass = true;
-                    break;
-                }
-            }
-            if (!pass)
-            {
-                fileEncoding = null;
-            }
-            return fileEncoding;
-        }
-
-        private System.Text.Encoding GetStrEncodingRetEncoding(string enc)
-        {
-            System.Text.Encoding retVal;
+            Encoding retVal;
             switch (enc.Trim().ToLower())
             {
                 case "gb2312":
-                    retVal = System.Text.Encoding.GetEncoding("gb2312");
+                    retVal = Encoding.GetEncoding("gb2312");
                     break;
+
                 case "utf8":
                 case "utf-8"://有bom和无bom都可以出力
-                    retVal = System.Text.Encoding.UTF8;
+                    retVal = Encoding.UTF8;
                     break;
+
                 default:
-                    retVal = System.Text.Encoding.Default;
+                    retVal = Encoding.Default;
                     break;
             }
             return retVal;
         }
-
- 
     }
 }
