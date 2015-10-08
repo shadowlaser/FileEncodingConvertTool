@@ -7,11 +7,53 @@ namespace FECT
 {
     internal class EncodeUtils
     {
-        private Encoding sE = null;
-        private Encoding dE = null;
+        //需要转换的文件的编码格式
+        private ArrayList encodings = new ArrayList();
 
-        
-        public static bool ConvertFileEncoding(string path, Encoding sEncode, Encoding dEncode)
+        //需要转换的文件扩展名
+        private ArrayList extensions = new ArrayList();
+
+        //转换后的编码格式
+        private Encoding dEncode = Encoding.Default;
+
+        public EncodeUtils SetEncodings(ArrayList encodings)
+        {
+            this.encodings = encodings;
+            return this;
+        }
+
+        public EncodeUtils AddEncode(Encoding encode)
+        {
+            encodings.Add(encode);
+            return this;
+        }
+
+        public EncodeUtils SetExtensions(ArrayList extensions)
+        {
+            this.extensions = extensions;
+            return this;
+        }
+
+        public EncodeUtils AddExtension(string ext)
+        {
+            extensions.Add(ext);
+            return this;
+        }
+
+        public EncodeUtils SetDestEncode(Encoding encode)
+        {
+            dEncode = encode;
+            return this;
+        }
+
+        /// <summary>
+        /// 转换单个文件
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="sEncode"></param>
+        /// <param name="dEncode"></param>
+        /// <returns></returns>
+        public bool ConvertFileEncoding(string path, Encoding sEncode)
         {
             bool retVal = true;
             StreamReader sr = null;
@@ -19,6 +61,7 @@ namespace FECT
 
             if (sEncode == null)
             {
+                //如果没有指定源文件的编码格式，则获取文件本身的编码格式
                 sEncode = EncodingType.GetFileEncodeType(path);
             }
             try
@@ -47,77 +90,72 @@ namespace FECT
                     sw.Close();
                 }
             }
-
-            //File.Move(path + ".Bossy.tmp", path);
-
             return retVal;
         }
 
-        //public int ConvertFolder(string folderpath, ArrayList fileExtension, ArrayList srcEncodinglist, Encoding destEncoding, bool bakFlag)
-        //{
-        //    int retVal = 0;
-
-        //    FileInfo[] filelist = new DirectoryInfo(folderpath).GetFiles();
-        //    bool searchSrcEncoding = true;
-        //    if (srcEncodinglist != null && srcEncodinglist.Count > 0)
-        //    {
-        //        searchSrcEncoding = true;
-        //    }
-        //    else
-        //    {
-        //        searchSrcEncoding = false;
-        //    }
-
-        //    foreach (FileInfo file in filelist)
-        //    {
-        //        if (searchSrcEncoding)
-        //        {
-        //            if (fileExtension.Contains(Path.GetExtension(file.FullName)))
-        //            {
-        //                Encoding srcEncoding = GetEncoding(file.FullName, srcEncodinglist);
-        //                if (srcEncoding != null)
-        //                {
-        //                    ConvertFileEncoding(file.FullName, srcEncoding, destEncoding);
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            ConvertFileEncoding(file.FullName, null, destEncoding);
-        //        }
-        //        if (!bakFlag)
-        //        {
-        //            File.Delete(file.FullName);
-        //        }
-        //        else
-        //        {
-        //            File.Move(file.FullName, file.FullName + ".Bossy.bak");
-        //        }
-        //    }
-
-        //    return retVal;
-        //}
-
-
-        private Encoding GetStrEncodingRetEncoding(string enc)
+        /// <summary>
+        /// 处理文件夹
+        /// </summary>
+        /// <param name="folders"></param>
+        /// <param name="encoding"></param>
+        /// <param name="extension"></param>
+        public void ConvertFolders(ArrayList folders)
         {
-            Encoding retVal;
-            switch (enc.Trim().ToLower())
+            foreach (string folder in folders)
             {
-                case "gb2312":
-                    retVal = Encoding.GetEncoding("gb2312");
-                    break;
+                ConvertFiles(new DirectoryInfo(folder).GetFiles());
+            }
+        }
 
-                case "utf8":
-                case "utf-8"://有bom和无bom都可以出力
-                    retVal = Encoding.UTF8;
-                    break;
-
-                default:
-                    retVal = Encoding.Default;
-                    break;
+        /// <summary>
+        /// 判断当前的文件是否是指定编码格式
+        /// 如果encodings的个数是0，那么返回true
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="encodings"></param>
+        /// <returns></returns>
+        private bool IsEncoding(FileInfo file)
+        {
+            bool retVal = true;
+            if (encodings.Count > 0 && !encodings.Contains(EncodingType.GetFileEncodeType(file.FullName)))
+            {
+                retVal = false;
             }
             return retVal;
+        }
+
+        /// <summary>
+        /// 判断是否当前文件的扩展名
+        /// 如果extensions的个数是0，那么返回true
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="extensions"></param>
+        /// <returns></returns>
+        private bool IsExtension(FileInfo file)
+        {
+            bool retVal = true;
+            if (extensions.Count > 0 && !extensions.Contains(file.Extension))
+            {
+                retVal = false;
+            }
+            return retVal;
+        }
+
+        /// <summary>
+        /// 处理多个文件
+        /// </summary>
+        /// <param name="files"></param>
+        /// <param name="encodings"></param>
+        /// <param name="extensions"></param>
+        public void ConvertFiles(FileInfo[] files)
+        {
+            foreach (FileInfo file in files)
+            {
+                if (IsEncoding(file) && IsExtension(file))
+                {
+                    ConvertFileEncoding(file.FullName, null);
+                }
+            }
         }
     }
 }

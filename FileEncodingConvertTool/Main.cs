@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 
@@ -20,7 +21,8 @@ namespace FECT
             //}
             //else
             {
-                EncodeUtils.ConvertFileEncoding("d:/test.txt", null, Encoding.UTF8);
+                EncodeUtils eu = new EncodeUtils();
+                eu.SetDestEncode(Encoding.UTF8).ConvertFiles(new FileInfo[] { new FileInfo("d:/BugReport.txt") });
             }
         }
     }
