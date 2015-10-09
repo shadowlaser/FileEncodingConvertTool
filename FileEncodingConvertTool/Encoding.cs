@@ -16,30 +16,64 @@ namespace FECT
         //转换后的编码格式
         private Encoding dEncode = Encoding.Default;
 
+        //备份标记
+        private bool bakFlag = false;
+
+        public EncodeUtils BackupOriginFiles(bool isBak)
+        {
+            this.bakFlag = isBak;
+            return this;
+        }
+
+        /// <summary>
+        /// 设置需要转化的文件的编码格式集合
+        /// </summary>
+        /// <param name="encodings"></param>
+        /// <returns></returns>
         public EncodeUtils SetEncodings(ArrayList encodings)
         {
             this.encodings = encodings;
             return this;
         }
 
+        /// <summary>
+        /// 添加转化的文件的编码格式
+        /// </summary>
+        /// <param name="encode"></param>
+        /// <returns></returns>
         public EncodeUtils AddEncode(Encoding encode)
         {
             encodings.Add(encode);
             return this;
         }
 
+        /// <summary>
+        /// 设置需要转换的文件扩展名的集合
+        /// </summary>
+        /// <param name="extensions"></param>
+        /// <returns></returns>
         public EncodeUtils SetExtensions(ArrayList extensions)
         {
             this.extensions = extensions;
             return this;
         }
 
+        /// <summary>
+        /// 添加需要转换的文件的扩展名
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <returns></returns>
         public EncodeUtils AddExtension(string ext)
         {
             extensions.Add(ext);
             return this;
         }
 
+        /// <summary>
+        /// 设置要转化成的目标文件格式
+        /// </summary>
+        /// <param name="encode"></param>
+        /// <returns></returns>
         public EncodeUtils SetDestEncode(Encoding encode)
         {
             dEncode = encode;
@@ -53,21 +87,39 @@ namespace FECT
         /// <param name="sEncode"></param>
         /// <param name="dEncode"></param>
         /// <returns></returns>
-        public bool ConvertFileEncoding(string path, Encoding sEncode)
+        public bool ConvertFileEncoding(string path, string dPath, Encoding sEncode = null)
         {
             bool retVal = true;
-            StreamReader sr = null;
-            StreamWriter sw = null;
 
             if (sEncode == null)
             {
                 //如果没有指定源文件的编码格式，则获取文件本身的编码格式
                 sEncode = EncodingType.GetFileEncodeType(path);
             }
+            //文件的格式和指定格式不一致
+            if (sEncode != dEncode)
+            {
+                retVal = ConvertStream(path, sEncode, dPath);
+            }
+            return retVal;
+        }
+
+        /// <summary>
+        /// 源文件到目标文件转换
+        /// </summary>
+        /// <param name="sPath"></param>
+        /// <param name="sEncode"></param>
+        /// <param name="dPath"></param>
+        /// <returns></returns>
+        private bool ConvertStream(string sPath, Encoding sEncode, string dPath)
+        {
+            bool retVal = true;
+            StreamReader sr = null;
+            StreamWriter sw = null;
             try
             {
-                sr = new StreamReader(path, sEncode);
-                sw = new StreamWriter(path + ".Bossy.tmp", true, dEncode);
+                sr = new StreamReader(sPath, sEncode);
+                sw = new StreamWriter(dPath, true, dEncode);
                 string oneline = sr.ReadLine();
                 while (oneline != null)
                 {
@@ -151,9 +203,25 @@ namespace FECT
         {
             foreach (FileInfo file in files)
             {
+                string dFilePath = file.FullName + ".tmp";
+                string sFilePath = file.FullName;
                 if (IsEncoding(file) && IsExtension(file))
                 {
-                    ConvertFileEncoding(file.FullName, null);
+                    bool convertFlag = ConvertFileEncoding(sFilePath, dFilePath, null);
+
+                    //转换成功
+                    if (convertFlag)
+                    {
+                        if (bakFlag)//备份
+                        {
+                            File.Move(sFilePath, sFilePath + ".bak");
+                        }
+                        else
+                        {
+                            File.Delete(sFilePath);
+                        }
+                        File.Move(dFilePath, sFilePath);
+                    }
                 }
             }
         }

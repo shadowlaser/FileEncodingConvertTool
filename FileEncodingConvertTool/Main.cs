@@ -13,13 +13,13 @@ namespace FECT
         [STAThread]
         private static void Main(string[] argu)
         {
-            //if (argu.Length == 0)
-            //{
-            //    Application.EnableVisualStyles();
-            //    Application.SetCompatibleTextRenderingDefault(false);
-            //    Application.Run(new ConvertForm());
-            //}
-            //else
+            if (argu.Length == 0)
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new ConvertForm());
+            }
+            else
             {
                 EncodeUtils eu = new EncodeUtils();
                 eu.SetDestEncode(Encoding.UTF8).ConvertFiles(new FileInfo[] { new FileInfo("d:/BugReport.txt") });

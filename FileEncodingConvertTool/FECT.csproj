@@ -71,6 +71,7 @@
       <DependentUpon>ConvertForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Main.cs" />
+    <Compile Include="ParameterUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ConvertForm.resx">
       <DependentUpon>ConvertForm.cs</DependentUpon>
