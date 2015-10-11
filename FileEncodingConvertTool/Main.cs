@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using System.Windows.Forms;
 
 //-e : 扩展名集合
@@ -20,16 +18,29 @@ namespace FECT
         [STAThread]
         private static void Main(string[] argu)
         {
-            if (argu.Length == 0)
+            //if (argu.Length == 0)
+            //{
+            //    Application.EnableVisualStyles();
+            //    Application.SetCompatibleTextRenderingDefault(false);
+            //    Application.Run(new ConvertForm());
+            //}
+            //else
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new ConvertForm());
-            }
-            else
-            {
-                EncodeUtils eu = new EncodeUtils();
-                eu.SetDestEncode(Encoding.UTF8).ConvertFiles(new FileInfo[] { new FileInfo("d:/BugReport.txt") });
+                ParameterUtils paras = new ParameterUtils(argu);
+
+                ValidateParams vp = new ValidateParams(paras);
+                if (vp.InDispensableParams())
+                {
+                    EncodeUtils eu = new EncodeUtils();
+                    eu.SetEncodings(EncodingType.GetEncodings(paras.SEncode()))
+                        .SetDestEncode(EncodingType.Encode(paras.DestEncode()))
+                       .SetExtensions(paras.Extension())
+                       .BackupOriginFiles(paras.BackupFlag())
+                       .SetFiles(paras.Files())
+                       .SetDirs(paras.Dirs());
+
+                    eu.Convert();
+                }
             }
         }
     }

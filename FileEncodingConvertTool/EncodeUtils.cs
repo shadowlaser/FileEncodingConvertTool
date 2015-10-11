@@ -19,6 +19,27 @@ namespace FECT
         //备份标记
         private bool bakFlag = false;
 
+        private ArrayList files = new ArrayList();
+        private ArrayList folders = new ArrayList();
+
+
+        public EncodeUtils SetFiles(string[] files)
+        {
+            if (files != null)
+            {
+                this.files = new ArrayList(files);
+            }
+            return this;
+        }
+
+        public EncodeUtils SetDirs(string[] folders)
+        {
+            if (folders != null)
+            {
+                this.folders = new ArrayList(folders);
+            }
+            return this;
+        }
         public EncodeUtils BackupOriginFiles(bool isBak)
         {
             this.bakFlag = isBak;
@@ -52,9 +73,12 @@ namespace FECT
         /// </summary>
         /// <param name="extensions"></param>
         /// <returns></returns>
-        public EncodeUtils SetExtensions(ArrayList extensions)
+        public EncodeUtils SetExtensions(string[] extensions)
         {
-            this.extensions = extensions;
+            if (extensions != null)
+            {
+                this.extensions = new ArrayList(extensions);
+            }
             return this;
         }
 
@@ -145,19 +169,7 @@ namespace FECT
             return retVal;
         }
 
-        /// <summary>
-        /// 处理文件夹
-        /// </summary>
-        /// <param name="folders"></param>
-        /// <param name="encoding"></param>
-        /// <param name="extension"></param>
-        public void ConvertFolders(ArrayList folders)
-        {
-            foreach (string folder in folders)
-            {
-                ConvertFiles(new DirectoryInfo(folder).GetFiles());
-            }
-        }
+
 
         /// <summary>
         /// 判断当前的文件是否是指定编码格式
@@ -203,26 +215,71 @@ namespace FECT
         {
             foreach (FileInfo file in files)
             {
-                string dFilePath = file.FullName + ".tmp";
-                string sFilePath = file.FullName;
-                if (IsEncoding(file) && IsExtension(file))
-                {
-                    bool convertFlag = ConvertFileEncoding(sFilePath, dFilePath, null);
+                ConvertFile(file);
+            }
+        }
 
-                    //转换成功
-                    if (convertFlag)
+
+        public void ConvertFiles(ArrayList files)
+        {
+            foreach (string strFile in files)
+            {
+                FileInfo file = new FileInfo(strFile);
+                ConvertFile(file);
+            }
+        }
+
+        public void ConvertFile(FileInfo file)
+        {
+            string dFilePath = file.FullName + ".tmp";
+            string sFilePath = file.FullName;
+            if (IsEncoding(file) && IsExtension(file))
+            {
+                bool convertFlag = ConvertFileEncoding(sFilePath, dFilePath, null);
+
+                //转换成功
+                if (convertFlag)
+                {
+                    if (bakFlag)//备份
                     {
-                        if (bakFlag)//备份
-                        {
-                            File.Move(sFilePath, sFilePath + ".bak");
-                        }
-                        else
-                        {
-                            File.Delete(sFilePath);
-                        }
-                        File.Move(dFilePath, sFilePath);
+                        File.Move(sFilePath, sFilePath + ".bak");
                     }
+                    else
+                    {
+                        File.Delete(sFilePath);
+                    }
+                    File.Move(dFilePath, sFilePath);
+                    Console.WriteLine("[成功]：{0}", file.FullName);
                 }
+                else
+                {
+                    Console.WriteLine("[失败]：{0}", file.FullName);
+                }
+            }
+        }
+        /// <summary>
+        /// 处理文件夹
+        /// </summary>
+        /// <param name="folders"></param>
+        /// <param name="encoding"></param>
+        /// <param name="extension"></param>
+        public void ConvertFolders(ArrayList folders)
+        {
+            foreach (string folder in folders)
+            {
+                ConvertFiles(new DirectoryInfo(folder).GetFiles());
+            }
+        }
+
+        public void Convert()
+        {
+            if (files.Count > 0)
+            {
+                ConvertFiles(files);
+            }
+            if (folders.Count > 0)
+            {
+                ConvertFolders(folders);
             }
         }
     }

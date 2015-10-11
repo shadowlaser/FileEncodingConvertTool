@@ -28,7 +28,7 @@ namespace FECT
         }
 
         //-s : 需要处理的文件的编码格式
-        public string[] GetSEncode()
+        public string[] SEncode()
         {
             string retVal = GetParamValue("-s");
             if (retVal != null)
@@ -39,7 +39,7 @@ namespace FECT
         }
 
         //-f ： 文件集合
-        public string[] GetFiles()
+        public string[] Files()
         {
             string retVal = GetParamValue("-f");
             if (retVal != null)
@@ -50,7 +50,7 @@ namespace FECT
         }
 
         //-e : 扩展名集合
-        public string[] GetExtension()
+        public string[] Extension()
         {
             string retVal = GetParamValue("-e");
             if (retVal != null)
@@ -61,7 +61,7 @@ namespace FECT
         }
 
         //-d : 转换后的编码格式
-        public string GetDestEncode()
+        public string DestEncode()
         {
             string dEncode = null;
             dEncode = GetParamValue("-d");
@@ -69,16 +69,18 @@ namespace FECT
         }
 
         //-dir ： 目录集合
-        public string GetDir()
+        public string[] Dirs()
         {
-            string retVal = null;
-
-            retVal = GetParamValue("-dir");
-            return retVal;
+            string retVal = GetParamValue("-dir");
+            if (retVal != null)
+            {
+                return retVal.Split(',');
+            }
+            return null;
         }
 
         //-b : 备份标记
-        public bool GetBackupFlag()
+        public bool BackupFlag()
         {
             return pars.Contains("-b");
         }
@@ -88,7 +90,7 @@ namespace FECT
             string retVal = null;
             if (pars.Contains(par))
             {
-                if (pars[pars.IndexOf(par) + 1].ToString().IndexOf("-") != -1)
+                if (pars[pars.IndexOf(par) + 1].ToString().IndexOf("-") != 0)
                 {
                     retVal = pars[pars.IndexOf(par) + 1].ToString();
                 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Text;
 
@@ -93,5 +94,64 @@ internal class EncodingType
             throw new Exception("非预期的byte格式");
         }
         return true;
+    }
+
+    public static Encoding Encode(string strEncoding)
+    {
+        
+        Encoding retVal = null;
+        try
+        {
+            switch (strEncoding)
+            {
+                case "utf8"://with bom
+                    retVal = Encoding.UTF8;
+                    break;
+
+                case "utf8nb"://without bom
+                    retVal = new UTF8Encoding(false);
+                    break;
+
+                case "utf16le":
+                case "utf16":
+                    retVal = Encoding.Unicode;
+                    break;
+
+                case "utf16be":
+                    retVal = Encoding.BigEndianUnicode;
+                    break;
+
+                default://gb2312,other
+                    retVal = Encoding.GetEncoding(strEncoding);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("转换编码 {0} 失败", strEncoding);
+            throw e;
+        }
+        
+        return retVal;
+    }
+
+    public static ArrayList GetEncodings(string[] encodings)
+    {
+        ArrayList encodes = new ArrayList();
+        if (encodings != null)
+        {
+            foreach (string encode in encodings)
+            {
+                try
+                {
+                    encodes.Add(EncodingType.Encode(encode));
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+        return encodes;
     }
 }
