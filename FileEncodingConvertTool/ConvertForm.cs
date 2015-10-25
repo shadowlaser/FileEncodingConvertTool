@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using FECT.OutputHandler;
+using FECT.ParameterHandler;
+using System.Windows.Forms;
 
 namespace FECT
 {
@@ -22,12 +24,19 @@ namespace FECT
                 return;
             }
 
-            EncodeUtils eu = new EncodeUtils();
-            eu.SetDestEncode(EncodingType.Encode(txtDEncode.Text.Trim()))
-               .BackupOriginFiles(backup.Checked)
-               .SetDirs(new string[]{txtFolder.Text.Trim()});
+            //EncodeUtils eu = new EncodeUtils();
+            //eu.SetDestEncode(EncodingType.Encode(txtDEncode.Text.Trim()))
+            //   .BackupOriginFiles(backup.Checked)
+            //   .SetDirs(new string[]{txtFolder.Text.Trim()});
 
-            eu.Convert();
+            //eu.Convert();
+            IOutput msg = new CommandOutput();
+
+            //todo:参数得好好处理
+            IParameters paras = new WinFormParameters(null);
+            ConvertLogic cl = new ConvertLogic(paras, msg);
+
+            cl.Convert();
         }
     }
 }

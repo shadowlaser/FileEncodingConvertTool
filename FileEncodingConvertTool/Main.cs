@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FECT.OutputHandler;
+using FECT.ParameterHandler;
+using System;
 using System.Windows.Forms;
 
 //-e : 扩展名集合
@@ -18,28 +20,31 @@ namespace FECT
         [STAThread]
         private static void Main(string[] argu)
         {
-            //if (argu.Length == 0)
-            //{
-            //    Application.EnableVisualStyles();
-            //    Application.SetCompatibleTextRenderingDefault(false);
-            //    Application.Run(new ConvertForm());
-            //}
-            //else
+            if (argu.Length == 0)
             {
-                ParameterUtils paras = new ParameterUtils(argu);
-
-                ValidateParams vp = new ValidateParams(paras);
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new ConvertForm());
+            }
+            else
+            {
+                //ParameterUtils paras = new ParameterUtils(argu);
+                IOutput msg = new CommandOutput();
+                ValidateParams vp = new ValidateParams(argu, msg);
                 if (vp.InDispensableParams())
                 {
-                    EncodeUtils eu = new EncodeUtils();
-                    eu.SetEncodings(EncodingType.GetEncodings(paras.SEncode()))
-                        .SetDestEncode(EncodingType.Encode(paras.DestEncode()))
-                       .SetExtensions(paras.Extension())
-                       .BackupOriginFiles(paras.BackupFlag())
-                       .SetFiles(paras.Files())
-                       .SetDirs(paras.Dirs());
+                    //EncodeUtils eu = new EncodeUtils();
+                    //eu.SetEncodings(EncodingType.GetEncodings(paras.SEncode()))
+                    //    .SetDestEncode(EncodingType.Encode(paras.DestEncode()))
+                    //   .SetExtensions(paras.Extension())
+                    //   .BackupOriginFiles(paras.BackupFlag())
+                    //   .SetFiles(paras.Files())
+                    //   .SetDirs(paras.Dirs());
+                    IParameters paras = new CommandParameters(argu);
 
-                    eu.Convert();
+                    ConvertLogic cl = new ConvertLogic(paras, msg);
+
+                    cl.Convert();
                 }
             }
         }

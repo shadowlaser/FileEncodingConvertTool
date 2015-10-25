@@ -1,108 +1,117 @@
-﻿using System;
+﻿using FECT.OutputHandler;
+using FECT.ParameterHandler;
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
 
 namespace FECT
 {
-    internal class EncodeUtils
+    internal class ConvertLogic
     {
-        //需要转换的文件的编码格式
-        private ArrayList encodings = new ArrayList();
+        ////需要转换的文件的编码格式
+        //private ArrayList encodings = new ArrayList();
 
-        //需要转换的文件扩展名
-        private ArrayList extensions = new ArrayList();
+        ////需要转换的文件扩展名
+        //private ArrayList extensions = new ArrayList();
 
-        //转换后的编码格式
-        private Encoding dEncode = Encoding.Default;
+        ////转换后的编码格式
+        //private Encoding dEncode = Encoding.Default;
 
-        //备份标记
-        private bool bakFlag = false;
+        ////备份标记
+        //private bool bakFlag = false;
 
-        private ArrayList files = new ArrayList();
-        private ArrayList folders = new ArrayList();
+        private IOutput msg;
 
+        private readonly IParameters p;
 
-        public EncodeUtils SetFiles(string[] files)
+        public ConvertLogic(IParameters p, IOutput msg)
         {
-            if (files != null)
-            {
-                this.files = new ArrayList(files);
-            }
-            return this;
+            this.p = p;
+            this.msg = msg;
         }
 
-        public EncodeUtils SetDirs(string[] folders)
-        {
-            if (folders != null)
-            {
-                this.folders = new ArrayList(folders);
-            }
-            return this;
-        }
-        public EncodeUtils BackupOriginFiles(bool isBak)
-        {
-            this.bakFlag = isBak;
-            return this;
-        }
+        //public ConvertLogic SetFiles(string[] files)
+        //{
+        //    if (files != null)
+        //    {
+        //        this.files = new ArrayList(files);
+        //    }
+        //    return this;
+        //}
 
-        /// <summary>
-        /// 设置需要转化的文件的编码格式集合
-        /// </summary>
-        /// <param name="encodings"></param>
-        /// <returns></returns>
-        public EncodeUtils SetEncodings(ArrayList encodings)
-        {
-            this.encodings = encodings;
-            return this;
-        }
+        //public ConvertLogic SetDirs(string[] folders)
+        //{
+        //    if (folders != null)
+        //    {
+        //        this.folders = new ArrayList(folders);
+        //    }
+        //    return this;
+        //}
 
-        /// <summary>
-        /// 添加转化的文件的编码格式
-        /// </summary>
-        /// <param name="encode"></param>
-        /// <returns></returns>
-        public EncodeUtils AddEncode(Encoding encode)
-        {
-            encodings.Add(encode);
-            return this;
-        }
+        //public ConvertLogic BackupOriginFiles(bool isBak)
+        //{
+        //    this.bakFlag = isBak;
+        //    return this;
+        //}
 
-        /// <summary>
-        /// 设置需要转换的文件扩展名的集合
-        /// </summary>
-        /// <param name="extensions"></param>
-        /// <returns></returns>
-        public EncodeUtils SetExtensions(string[] extensions)
-        {
-            if (extensions != null)
-            {
-                this.extensions = new ArrayList(extensions);
-            }
-            return this;
-        }
+        ///// <summary>
+        ///// 设置需要转化的文件的编码格式集合
+        ///// </summary>
+        ///// <param name="encodings"></param>
+        ///// <returns></returns>
+        //public ConvertLogic SetEncodings(ArrayList encodings)
+        //{
+        //    this.encodings = encodings;
+        //    return this;
+        //}
 
-        /// <summary>
-        /// 添加需要转换的文件的扩展名
-        /// </summary>
-        /// <param name="ext"></param>
-        /// <returns></returns>
-        public EncodeUtils AddExtension(string ext)
-        {
-            extensions.Add(ext);
-            return this;
-        }
+        ///// <summary>
+        ///// 添加转化的文件的编码格式
+        ///// </summary>
+        ///// <param name="encode"></param>
+        ///// <returns></returns>
+        //public ConvertLogic AddEncode(Encoding encode)
+        //{
+        //    encodings.Add(encode);
+        //    return this;
+        //}
 
-        /// <summary>
-        /// 设置要转化成的目标文件格式
-        /// </summary>
-        /// <param name="encode"></param>
-        /// <returns></returns>
-        public EncodeUtils SetDestEncode(Encoding encode)
-        {
-            dEncode = encode;
-            return this;
-        }
+        ///// <summary>
+        ///// 设置需要转换的文件扩展名的集合
+        ///// </summary>
+        ///// <param name="extensions"></param>
+        ///// <returns></returns>
+        //public ConvertLogic SetExtensions(string[] extensions)
+        //{
+        //    if (extensions != null)
+        //    {
+        //        this.extensions = new ArrayList(extensions);
+        //    }
+        //    return this;
+        //}
+
+        ///// <summary>
+        ///// 添加需要转换的文件的扩展名
+        ///// </summary>
+        ///// <param name="ext"></param>
+        ///// <returns></returns>
+        //public ConvertLogic AddExtension(string ext)
+        //{
+        //    extensions.Add(ext);
+        //    return this;
+        //}
+
+        ///// <summary>
+        ///// 设置要转化成的目标文件格式
+        ///// </summary>
+        ///// <param name="encode"></param>
+        ///// <returns></returns>
+        //public ConvertLogic SetDestEncode(Encoding encode)
+        //{
+        //    dEncode = encode;
+        //    return this;
+        //}
 
         /// <summary>
         /// 转换单个文件
@@ -121,7 +130,7 @@ namespace FECT
                 sEncode = EncodingType.GetFileEncodeType(path);
             }
             //文件的格式和指定格式不一致
-            if (sEncode != dEncode)
+            if (sEncode != EncodingType.Encode(p.GetDestEncode()))
             {
                 retVal = ConvertStream(path, sEncode, dPath);
             }
@@ -143,7 +152,7 @@ namespace FECT
             try
             {
                 sr = new StreamReader(sPath, sEncode);
-                sw = new StreamWriter(dPath, true, dEncode);
+                sw = new StreamWriter(dPath, true, EncodingType.Encode(p.GetDestEncode()));
                 string oneline = sr.ReadLine();
                 while (oneline != null)
                 {
@@ -169,8 +178,6 @@ namespace FECT
             return retVal;
         }
 
-
-
         /// <summary>
         /// 判断当前的文件是否是指定编码格式
         /// 如果encodings的个数是0，那么返回true
@@ -181,7 +188,8 @@ namespace FECT
         private bool IsEncoding(FileInfo file)
         {
             bool retVal = true;
-            if (encodings.Count > 0 && !encodings.Contains(EncodingType.GetFileEncodeType(file.FullName)))
+            ArrayList srcEncodes = p.GetSrcEncodes();
+            if (srcEncodes.Count > 0 && !srcEncodes.Contains(EncodingType.GetFileEncodeType(file.FullName)))
             {
                 retVal = false;
             }
@@ -198,6 +206,7 @@ namespace FECT
         private bool IsExtension(FileInfo file)
         {
             bool retVal = true;
+            ArrayList extensions = p.GetExts();
             if (extensions.Count > 0 && !extensions.Contains(file.Extension))
             {
                 retVal = false;
@@ -219,7 +228,6 @@ namespace FECT
             }
         }
 
-
         public void ConvertFiles(ArrayList files)
         {
             foreach (string strFile in files)
@@ -240,7 +248,7 @@ namespace FECT
                 //转换成功
                 if (convertFlag)
                 {
-                    if (bakFlag)//备份
+                    if (p.GetBackUp())//备份
                     {
                         File.Move(sFilePath, sFilePath + ".bak");
                     }
@@ -249,14 +257,15 @@ namespace FECT
                         File.Delete(sFilePath);
                     }
                     File.Move(dFilePath, sFilePath);
-                    Console.WriteLine("[成功]：{0}", file.FullName);
+                    msg.WriteMsg(string.Format("[成功]：{0}", file.FullName));
                 }
                 else
                 {
-                    Console.WriteLine("[失败]：{0}", file.FullName);
+                    msg.WriteMsg(string.Format("[失败]：{0}", file.FullName));
                 }
             }
         }
+
         /// <summary>
         /// 处理文件夹
         /// </summary>
@@ -273,10 +282,12 @@ namespace FECT
 
         public void Convert()
         {
+            ArrayList files = p.GetFiles();
             if (files.Count > 0)
             {
                 ConvertFiles(files);
             }
+            ArrayList folders = p.GetDirectorys();
             if (folders.Count > 0)
             {
                 ConvertFolders(folders);
